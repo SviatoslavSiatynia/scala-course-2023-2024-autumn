@@ -27,12 +27,20 @@ object BooleanOperatorsSpecification extends Properties("Boolean Operators"):
     and(left, right) == (left && right)
   }
 
+  property("eager and") = forAll { () =>
+    !and(left = false, throw new IllegalArgumentException("eager and is failed"))
+  }
+
   property("or") = forAll { (pair: (Boolean, Boolean)) =>
     val (left, right) = pair
 
     or(left, right) == (left || right)
   }
-
+  
+  property("eager or") = forAll { () =>
+    or(left = true, throw new IllegalArgumentException("eager or is failed"))
+  }
+  
 end BooleanOperatorsSpecification
 
 object FermatNumbersSpecification extends Properties("Fermat Numbers"):

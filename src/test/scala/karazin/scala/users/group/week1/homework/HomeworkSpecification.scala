@@ -27,7 +27,7 @@ object BooleanOperatorsSpecification extends Properties("Boolean Operators"):
     and(left, right) == (left && right)
   }
 
-  property("eager and") = forAll { () =>
+  property("eager and") = propBoolean {
     !and(left = false, throw new IllegalArgumentException("eager and is failed"))
   }
 
@@ -37,7 +37,7 @@ object BooleanOperatorsSpecification extends Properties("Boolean Operators"):
     or(left, right) == (left || right)
   }
   
-  property("eager or") = forAll { () =>
+  property("eager or") = propBoolean {
     or(left = true, throw new IllegalArgumentException("eager or is failed"))
   }
   

@@ -35,7 +35,7 @@ object Homework:
 
     @targetName("addition")  // 1/2 + 3/5; 1/2 + 2 = 3/2; (Добавить для инта каждому методу)
     infix def +(that: Rational): Rational =
-      val comDenom = this.denom * that.denom / gcd(this.denom, that.denom)
+      val comDenom = this.denom * that.denom
       val newNumer = (this.numer * (comDenom / this.denom)) + (that.numer * (comDenom / that.denom))
       Rational(newNumer, comDenom)
 
@@ -51,7 +51,7 @@ object Homework:
 
     @targetName("substraction")
     infix def -(that: Rational): Rational =
-      val comDenom = this.denom * that.denom / gcd(this.denom, that.denom)
+      val comDenom = this.denom * that.denom
       val newNumer = (this.numer * (comDenom / this.denom)) - (that.numer * (comDenom / that.denom))
       Rational(newNumer, comDenom)
 
@@ -88,11 +88,18 @@ object Homework:
       if b == 0 then a else gcd(b, a % b)
 
     private lazy val g = gcd(abs(x), y)
+
     override def equals(other: Any): Boolean =
-      if other.isInstanceOf[Rational] then
+      if !other.isInstanceOf[Rational] then false
+      else
         val that = other.asInstanceOf[Rational]
-        this.numer == that.numer && this.denom == that.denom
-      else false
+        if this.hashCode != that.hashCode then false
+        else
+          (this.numer == that.numer) && (this.denom == that.denom)
+
+    override def hashCode(): Int =
+      val state = Seq(numer, denom)
+      state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
 
   end Rational
 end Homework

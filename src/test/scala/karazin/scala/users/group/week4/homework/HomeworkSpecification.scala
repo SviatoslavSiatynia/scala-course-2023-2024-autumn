@@ -7,10 +7,9 @@ import Homework._
 
 // Допоміжна функція перетворення IntSet в Set[Int]
 def toSet(set: IntSet): Set[Int] =
-  if set.isInstanceOf[NonEmpty] then
-    val nonEmpty = set.asInstanceOf[NonEmpty]
-    Set(nonEmpty.elem) ++ toSet(nonEmpty.left) ++ toSet(nonEmpty.right)
-  else Set.empty[Int]
+  set match
+    case nonEmpty: NonEmpty => Set(nonEmpty.elem) ++ toSet(nonEmpty.left) ++ toSet(nonEmpty.right)
+    case _ => Set.empty[Int]
 
 object HomeworkSpecification extends Properties("Homework"):
 

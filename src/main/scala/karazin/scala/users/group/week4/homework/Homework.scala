@@ -55,6 +55,8 @@ object Homework:
       if other.isInstanceOf[Empty] then true
       else false
 
+    override def hashCode(): Int = 0
+
   end Empty
     
   case class NonEmpty(elem: Int, left: IntSet, right: IntSet) extends IntSet:
@@ -72,57 +74,57 @@ object Homework:
     // Optional task
     infix def remove(x: Int): IntSet =
       if this contains x then
-        if x < elem then
-          NonEmpty(elem, left.remove(x), right)
-        else if x > elem then
-          NonEmpty(elem, left, right.remove(x))
-        else if left == Empty && right == Empty then
-          Empty
-        else if left == Empty then
-          right
-        else if right == Empty then
-          left
-        else
-          val (pred, newLeft) = maxValueAndRemove(left)
-          NonEmpty(pred, newLeft, right)
+        if x == elem then
+
+          if left == Empty && right == Empty then Empty
+          else if left == Empty then right
+          else if right == Empty then left
+          else
+            val (pred, newLeft) = maxValueAndRemove(left)
+            NonEmpty(pred, newLeft, right)
+
+        else if x < elem then NonEmpty(elem, left.remove(x), right)
+
+        else NonEmpty(elem, left, right.remove(x))
+
       else throw new Exception("The element is not included in NonEmpty")
 
-
     private def maxValueAndRemove(set: IntSet): (Int, IntSet) =
-      if set.isInstanceOf[NonEmpty] then
-        val newSet = set.asInstanceOf[NonEmpty]
-        if newSet.right == Empty then
-          (newSet.elem, newSet.left)
+      set match
+      case nonEmpty: NonEmpty =>
+        if nonEmpty.right == Empty then
+          (nonEmpty.elem, nonEmpty.left)
         else maxValueAndRemove(right)
-      else throw new Exception("Found Empty set error")
+      case Empty => throw new Exception("Found Empty set error")
 
     @targetName("union")
     infix def ∪(that: IntSet): IntSet =
-      if that.isInstanceOf[NonEmpty] then
-        val thatNonEmpty = that.asInstanceOf[NonEmpty]
-        (this include thatNonEmpty.elem) ∪ thatNonEmpty.left ∪ thatNonEmpty.right
-      else this
+      that match
+        case thatNonEmpty: NonEmpty =>
+          (this include thatNonEmpty.elem) ∪ thatNonEmpty.left ∪ thatNonEmpty.right
+        case _ => this
 
     @targetName("intersection") //
     infix def ∩(that: IntSet): IntSet =
-      if that.isInstanceOf[NonEmpty] then
-        val thatNonEmpty = that.asInstanceOf[NonEmpty]
-        if this contains thatNonEmpty.elem then NonEmpty(thatNonEmpty.elem, this ∩ thatNonEmpty.left, this ∩ thatNonEmpty.right)
-        else (this ∩ thatNonEmpty.left) ∪ (this ∩ thatNonEmpty.right)
-      else Empty
+      that match
+        case thatNonEmpty: NonEmpty =>
+          if this contains thatNonEmpty.elem then NonEmpty(thatNonEmpty.elem, this ∩ thatNonEmpty.left, this ∩ thatNonEmpty.right)
+          else (this ∩ thatNonEmpty.left) ∪ (this ∩ thatNonEmpty.right)
+        case _ => Empty
 
     @targetName("complement") //
     infix def ∖(that: IntSet): IntSet =
-    if that.isInstanceOf[NonEmpty] then
-      val thatNonEmpty = that.asInstanceOf[NonEmpty]
-      if thatNonEmpty contains this.elem then (this.left ∖ thatNonEmpty) ∪ (this.right ∖ thatNonEmpty)
-      else NonEmpty(this.elem, this.left ∖ thatNonEmpty, this.right ∖ thatNonEmpty)
-    else this
+      that match
+        case thatNonEmpty: NonEmpty =>
+          if thatNonEmpty contains this.elem then (this.left ∖ thatNonEmpty) ∪ (this.right ∖ thatNonEmpty)
+          else NonEmpty(this.elem, this.left ∖ thatNonEmpty, this.right ∖ thatNonEmpty)
+        case _ => this
 
     @targetName("disjunctive union")
     infix def ∆(that: IntSet): IntSet =
-      if that.isInstanceOf[Empty] then this
-      else (this ∖ that) ∪ (that ∖ this)
+      that match
+        case thatEmpty: Empty => this
+        case _ => (this ∖ that) ∪ (that ∖ this)
     
     override def toString: String = s"[$left - [$elem] - $right]"    
     override def equals(other: Any): Boolean =

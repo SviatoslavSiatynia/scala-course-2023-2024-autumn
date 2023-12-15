@@ -79,14 +79,6 @@ object Homework:
         else NonEmpty(elem, left, right.remove(x))
       else throw new Exception("The element is not included in NonEmpty")
 
-    private def maxValueAndRemove(set: IntSet): (Int, IntSet) =
-      set match
-      case nonEmpty: NonEmpty =>
-        if nonEmpty.right == Empty then
-          (nonEmpty.elem, nonEmpty.left)
-        else maxValueAndRemove(right)
-      case Empty => throw new Exception("Found Empty set error")
-
     @targetName("union")
     infix def ∪(that: IntSet): IntSet =
       that match

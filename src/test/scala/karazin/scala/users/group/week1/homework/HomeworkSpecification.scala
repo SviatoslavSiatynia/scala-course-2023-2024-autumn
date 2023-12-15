@@ -1,9 +1,10 @@
 package karazin.scala.users.group.week1.homework
 
 import org.scalacheck._
-import Prop.{forAll, propBoolean}
+import Prop.{forAll, propBoolean, throws}
 import Homework._
 import karazin.scala.users.group.week1.homework.arbitraries
+import annotation.tailrec
 
 object HomeworkSpecification extends Properties("Homework"):
 
@@ -22,16 +23,24 @@ object BooleanOperatorsSpecification extends Properties("Boolean Operators"):
 
   property("and") = forAll { (pair: (Boolean, Boolean)) =>
     val (left, right) = pair
-    
-    and(left, right) == left && right
+
+    and(left, right) == (left && right)
+  }
+
+  property("eager and") = propBoolean {
+    !and(left = false, throw new IllegalArgumentException("eager and is failed"))
   }
 
   property("or") = forAll { (pair: (Boolean, Boolean)) =>
     val (left, right) = pair
-    
-    or(left, right) == left || right
-  }   
 
+    or(left, right) == (left || right)
+  }
+  
+  property("eager or") = propBoolean {
+    or(left = true, throw new IllegalArgumentException("eager or is failed"))
+  }
+  
 end BooleanOperatorsSpecification
 
 object FermatNumbersSpecification extends Properties("Fermat Numbers"):
@@ -42,13 +51,27 @@ object FermatNumbersSpecification extends Properties("Fermat Numbers"):
     multiplication(left, right) == (left * right)
   }
 
+  property("Negative n is not allowed") = forAll { (a: Int, n: Int) =>
+    throws(classOf[IllegalArgumentException]) {
+      val newN = if n != 0 then -Math.abs(n) else -1
+      power(a, newN)
+    }
+  }
+
   property("power") = forAll { (left: Int, right: Int) =>
-    power(left, right) == (0 until right).foldLeft(BigInt(1)) { (acc, _) => acc * left }
+    power(left, right) == BigInt(left).pow(right)
+  }
+
+  property("Negative n is not allowed") = forAll { (n: Int) =>
+    throws(classOf[IllegalArgumentException]) {
+      val newN = if n == 0 then -1 else -n
+      fermatNumber(newN)
+    }
   }
 
   property("fermatNumber") = forAll { (n: Int) =>
-    fermatNumber(n) == Math.pow(2, Math.pow(2, 2)) + 1
-  }  
+    fermatNumber(n) == BigInt(2).pow(BigInt(2).pow(n).toInt) + 1
+  }
 
 end FermatNumbersSpecification
 
@@ -56,8 +79,35 @@ object LookAndAaSequenceSpecification extends Properties("Look-and-say Sequence"
   import `Look-and-say Sequence`._
   import arbitraries.given Arbitrary[Int]
 
-  property("fermatNumber") = forAll { (n: Int) =>
-    lookAndSaySequenceElement(n) == 42
-  }  
+  // https://rosettacode.org/wiki/Look-and-say_sequence#Scala
+  @tailrec
+  private def loop(n: Int, num: String): String = {
+    if (n <= 0) num else loop(n - 1, lookAndSay(num))
+  }
+
+  private def lookAndSay(number: String): String = {
+    val result = new StringBuilder
+
+    @tailrec
+    def loop(numberString: String, repeat: Char, times: Int): String =
+      if (numberString.isEmpty) result.toString()
+      else if (numberString.head != repeat) {
+        result.append(times).append(repeat)
+        loop(numberString.tail, numberString.head, 1)
+      } else loop(numberString.tail, numberString.head, times + 1)
+
+    loop(number.tail + " ", number.head, 1)
+  }
+
+  property("Argument n must to be above zero.") = forAll { (n: Int) =>
+    throws(classOf[IllegalArgumentException]) {
+      val negativeOrZero = if n == 0 then 0 else -n
+      lookAndSaySequenceElement(negativeOrZero)
+    }
+  }
+
+  property("lookAndSaySequenceElement.") = forAll { (n: Int) =>
+    (n > 0) ==> (lookAndSaySequenceElement(n).toString() == loop(n - 1, "1"))
+  }
 
 end LookAndAaSequenceSpecification

@@ -43,11 +43,14 @@ object Homework:
     def toInt: Int = 0
 
     override def toString: String = "Zero"
+
     override def equals(obj: Any): Boolean =
       if obj.isInstanceOf[Zero] then
         val that = obj.asInstanceOf[Zero]
         this.isZero && that.isZero
       else false
+
+    override def hashCode(): Int = 31
 
   class Succ(n: Nat) extends Nat:
     def isZero: Boolean = false
@@ -76,3 +79,6 @@ object Homework:
         val that = obj.asInstanceOf[Succ]
         (this.predecessor == that.predecessor) && (this.isZero == that.isZero)
       else false
+
+    override def hashCode(): Int =
+      31 * (31 + predecessor.hashCode()) + (if isZero then 1 else 0)

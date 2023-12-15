@@ -74,19 +74,9 @@ object Homework:
     // Optional task
     infix def remove(x: Int): IntSet =
       if this contains x then
-        if x == elem then
-
-          if left == Empty && right == Empty then Empty
-          else if left == Empty then right
-          else if right == Empty then left
-          else
-            val (pred, newLeft) = maxValueAndRemove(left)
-            NonEmpty(pred, newLeft, right)
-
+        if x == elem then left ∪ right
         else if x < elem then NonEmpty(elem, left.remove(x), right)
-
         else NonEmpty(elem, left, right.remove(x))
-
       else throw new Exception("The element is not included in NonEmpty")
 
     private def maxValueAndRemove(set: IntSet): (Int, IntSet) =
@@ -104,7 +94,7 @@ object Homework:
           (this include thatNonEmpty.elem) ∪ thatNonEmpty.left ∪ thatNonEmpty.right
         case _ => this
 
-    @targetName("intersection") //
+    @targetName("intersection")
     infix def ∩(that: IntSet): IntSet =
       that match
         case thatNonEmpty: NonEmpty =>
@@ -112,7 +102,7 @@ object Homework:
           else (this ∩ thatNonEmpty.left) ∪ (this ∩ thatNonEmpty.right)
         case _ => Empty
 
-    @targetName("complement") //
+    @targetName("complement")
     infix def ∖(that: IntSet): IntSet =
       that match
         case thatNonEmpty: NonEmpty =>

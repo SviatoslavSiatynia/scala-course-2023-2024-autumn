@@ -1,24 +1,30 @@
 package karazin.scala.users.group.week2.homework
 
+import scala.language.implicitConversions
 import scala.math._
 import org.scalacheck._
 import Prop.{forAll, propBoolean, throws}
 import karazin.scala.users.group.week2.homework.arbitraries
 import Homework._
+import karazin.scala.users.group.week2.arbitraries.restricted.{Integer, Zero, PositiveInteger, NegativeInteger}
 import utils._
 
 object HomeworkSpecification extends Properties("Homework"):
-  import arbitraries.{given Arbitrary[Int], given Arbitrary[Rational]}
 
-  property("throw exception due to zero denominator") = forAll { (numer: Int) ⇒
+  import arbitraries.{
+    given Arbitrary[Int], given Arbitrary[Rational], given Arbitrary[NegativeInteger],
+    given Arbitrary[Integer], given Arbitrary[Zero], given Arbitrary[PositiveInteger]
+  }
+
+  property("throw exception due to zero denominator") = forAll { (numer: Int, zero: Zero) ⇒
     throws(classOf[IllegalArgumentException]) {
-      Rational(numer, 0)
+      Rational(numer, zero)
     }
   }
 
-  property("throw exception due to negative denominator") = forAll { (numer: Int, kindaDenom: Int) ⇒
+  property("throw exception due to negative denominator") = forAll { (numer: Int, negativeInt: NegativeInteger) ⇒
     throws(classOf[IllegalArgumentException]) {
-      Rational(numer, -abs(kindaDenom))
+      Rational(numer, negativeInt)
     }
   }
 
@@ -50,28 +56,64 @@ object HomeworkSpecification extends Properties("Homework"):
   }
 
   property("negation") = forAll { (rational: Rational) =>
-    ???
+    -rational == (rational * -1)
   }
 
   property("addition") = forAll { (left: Rational, right: Rational) =>
-    ???
+    val resComDenom = left.denom * right.denom
+    val resRational = Rational((left.numer * (resComDenom / left.denom)) + (right.numer * (resComDenom / right.denom)),resComDenom)
+    (left + right) == resRational
+  }
+
+  property("addition of Integer") = forAll { (left: Rational, int: Integer) =>
+    val right = Rational(int, 1)
+    (left + int) == (left + right)
   }
 
   property("subtraction") = forAll { (left: Rational, right: Rational) =>
-    ???
+    val resComDenom = left.denom * right.denom
+    val resRational = Rational((left.numer * (resComDenom / left.denom)) - (right.numer * (resComDenom / right.denom)), resComDenom)
+    (left - right) == resRational
+  }
+
+  property("substraction of Integer") = forAll { (left: Rational, int: Integer) =>
+    val right = Rational(int, 1)
+    (left - int) == (left - right)
   }
 
   property("multiplication") = forAll { (left: Rational, right: Rational) =>
-    ???
+    val resRational = Rational((left.numer * right.numer), (left.denom * right.denom))
+    left * right == resRational
   }
 
-  property("division") = forAll { (left: Rational, numer: Int, denom: Int) =>
-    val right = Rational(if numer == 0 then 1 else numer, abs(denom) + 1)
-    ???
+  property("multiplication of Integer") = forAll { (left: Rational, int: Integer) =>
+    val right = Rational(int, 1)
+    (left * int) == (left * right)
   }
 
-  property("division by zero") = forAll { (left: Rational, int: Int) =>
-    ???
+  property("division") = forAll { (left: Rational, numer: Integer, denom: Integer) =>
+    val right = Rational(if numer equals 0 then 1 else numer, abs(denom) + 1)
+    val newNumer = left.numer * right.denom
+    val newDenom = right.numer * left.denom
+    val resRational = if newDenom < 0 then Rational(-newNumer, -newDenom) else Rational(newNumer, newDenom)
+    (left / right) == resRational
+  }
+
+  property("division of NegativeInteger") = forAll { (left: Rational, int: NegativeInteger) =>
+    val right = Rational(int, 1)
+    (left / int) == (left / right)
+  }
+
+  property("division of PositiveInteger") = forAll { (left: Rational, int: PositiveInteger) =>
+    val right = Rational(int, 1)
+    (left / int) == (left / right)
+  }
+
+  property("division by zero") = forAll { (left: Rational, zero: Zero) =>
+    throws(classOf[IllegalArgumentException]) {
+      val right = Rational(zero)
+      left / right
+    }
   }
 
 end HomeworkSpecification

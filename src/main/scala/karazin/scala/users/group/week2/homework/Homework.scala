@@ -33,20 +33,54 @@ object Homework:
     infix def >=(that: Rational): Boolean =
       !(this < that)
 
-    @targetName("addition")
-    infix def +(that: Rational): Rational = ???
+    @targetName("addition")  // 1/2 + 3/5; 1/2 + 2 = 3/2; (Добавить для инта каждому методу)
+    infix def +(that: Rational): Rational =
+      val comDenom = this.denom * that.denom
+      val newNumer = (this.numer * (comDenom / this.denom)) + (that.numer * (comDenom / that.denom))
+      Rational(newNumer, comDenom)
+
+    @targetName("addition of Integer")
+    infix def +(that: Int): Rational =
+      val newNumer = this.numer + this.denom * that
+      Rational(newNumer, this.denom)
 
     @targetName("negation")
-    infix def unary_- : Rational = ???
+    infix def unary_- : Rational =
+      val newNumer = this.numer * -1
+      Rational(newNumer, this.denom)
 
     @targetName("substraction")
-    infix def -(that: Rational): Rational = ???
+    infix def -(that: Rational): Rational =
+      val comDenom = this.denom * that.denom
+      val newNumer = (this.numer * (comDenom / this.denom)) - (that.numer * (comDenom / that.denom))
+      Rational(newNumer, comDenom)
+
+    @targetName("substraction of Integer")
+    infix def -(that: Int): Rational =
+      val newNumer = this.numer - this.denom * that
+      Rational(newNumer, this.denom)
 
     @targetName("multiplication")
-    infix def *(that: Rational): Rational = ???
+    infix def *(that: Rational): Rational =
+      val newDenom = this.denom * that.denom
+      val newNumer = this.numer * that.numer
+      Rational(newNumer, newDenom)
+
+    @targetName("multiplication of Integer")
+    infix def *(that: Int): Rational =
+      val newNumer = this.numer * that
+      Rational(newNumer, this.denom)
 
     @targetName("devision")
-    infix def /(that: Rational): Rational = ???
+    infix def /(that: Rational): Rational =
+      val newNumer = this.numer * that.denom
+      val newDenom = that.numer * this.denom
+      if newDenom < 0 then Rational(-newNumer, -newDenom) else Rational(newNumer, newDenom)
+
+    @targetName("devision of Integer")
+    infix def /(that: Int): Rational =
+      val newDenom = this.denom * that
+      if newDenom < 0 then Rational(-this.numer, -newDenom) else Rational(this.numer, newDenom)
 
     override def toString: String = s"${this.numer}/${this.denom}"
 
@@ -55,8 +89,17 @@ object Homework:
 
     private lazy val g = gcd(abs(x), y)
 
-    override def equals(other: Any): Boolean = ???
+    override def equals(other: Any): Boolean =
+      if !other.isInstanceOf[Rational] then false
+      else
+        val that = other.asInstanceOf[Rational]
+        if this.hashCode != that.hashCode then false
+        else
+          (this.numer == that.numer) && (this.denom == that.denom)
+
+    override def hashCode(): Int =
+      val state = Seq(numer, denom)
+      state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
 
   end Rational
-
 end Homework

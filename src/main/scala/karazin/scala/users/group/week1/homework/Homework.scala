@@ -128,4 +128,29 @@ object Homework :
 
   end `Look-and-say Sequence`
 
+  object `Kolakoski sequence`:
+
+    val kolakoski: Int => Int = (n) =>
+      @tailrec
+      def getElem(sequence: String, index: Int, first: Char, second: Char): Int =
+        if index == n then
+          if sequence.charAt(n - 1) == first then first.asDigit
+          else second.asDigit
+        else
+          val newSubSequence =
+            if sequence.charAt(index) == '2' then
+              if sequence.last == '2' then s"$first$first"
+              else s"$second$second"
+            else
+              if sequence.last == '2' then first.toString
+              else second.toString
+          val newSequence = sequence + newSubSequence
+          getElem(newSequence, index + 1, first, second)
+
+      require(n > 0, "The parameter n must be greater than zero.")
+      val result = getElem("122", 2, '1', '2')
+      result
+
+  end `Kolakoski sequence`
+
 end Homework

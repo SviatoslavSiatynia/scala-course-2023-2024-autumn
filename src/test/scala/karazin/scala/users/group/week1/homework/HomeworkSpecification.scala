@@ -1,10 +1,11 @@
 package karazin.scala.users.group.week1.homework
 
-import org.scalacheck._
+import org.scalacheck.*
 import Prop.{forAll, propBoolean, throws}
-import Homework._
+import Homework.*
 import karazin.scala.users.group.week1.homework.arbitraries
 import annotation.tailrec
+import scala.util.Try
 
 object HomeworkSpecification extends Properties("Homework"):
 
@@ -111,3 +112,49 @@ object LookAndAaSequenceSpecification extends Properties("Look-and-say Sequence"
   }
 
 end LookAndAaSequenceSpecification
+
+object KolakoskiSequence extends Properties("KolakoskiSequence"):
+  import `Kolakoski sequence`._
+  import arbitraries.given Arbitrary[Int]
+
+  // https://rosettacode.org/wiki/Kolakoski_sequence#Kotlin
+  // З посилання узято функцію для перевірки
+  extension (arr: Array[Int])
+    def nextInCycle(index: Int): Int = arr(index % arr.length)
+
+    def kolakoskiElement(len: Int): Array[Int] = {
+      val s = new Array[Int](len)
+      var i = 0
+      var k = 0
+      while (true) {
+        s(i) = arr.nextInCycle(k)
+        if (s(k) > 1) {
+          (1 until s(k)).foreach { _ =>
+            i += 1
+            if (i == len) return s
+            s(i) = s(i - 1)
+          }
+        }
+        i += 1
+        if (i == len) return s
+        k += 1
+      }
+      s
+    }
+
+  property("Throws exception for non-positive n") = forAll { (n: Int) =>
+    val nonPositiveN = if (n <= 0) n else -n
+    val result = Try(kolakoski(nonPositiveN))
+    result.isFailure ==> result.failed.get.isInstanceOf[IllegalArgumentException]
+  }
+
+  val array = Array(1, 2)
+  property("Valid last element from kolakoski and kolakoskiElement") = forAll { (n: Int) =>
+    (n > 0) ==> {
+      val kolakoskiLastElement = kolakoski(n)
+      val iaLastElement = array.kolakoskiElement(n).last
+      kolakoskiLastElement == iaLastElement
+    }
+  }
+
+end KolakoskiSequence

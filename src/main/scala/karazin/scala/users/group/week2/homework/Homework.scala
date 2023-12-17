@@ -102,4 +102,27 @@ object Homework:
       state.map(_.hashCode()).foldLeft(0)((a, b) => 31 * a + b)
 
   end Rational
+
+  implicit class ExtendedInt(int: Int):
+    
+    @targetName("addition Int of Rational")
+    infix def +(that: Rational): Rational =
+      val newLeft = Rational(int, 1)
+      newLeft + that
+
+    @targetName("substraction Int of Rational")
+    infix def -(that: Rational): Rational =
+      val newLeft = Rational(int, 1)
+      newLeft - that
+
+    @targetName("multiplication Int of Rational")
+    infix def *(that: Rational): Rational =
+      val newLeft = Rational(int, 1)
+      newLeft * that
+
+    @targetName("devision Int of Rational")
+    infix def /(that: Rational): Rational =
+      val newLeft = Rational(int, 1)
+      newLeft / that
+
 end Homework

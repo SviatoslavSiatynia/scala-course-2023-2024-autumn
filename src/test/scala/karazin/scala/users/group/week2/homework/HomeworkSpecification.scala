@@ -116,4 +116,35 @@ object HomeworkSpecification extends Properties("Homework"):
     }
   }
 
+  property("addition Int of Rational") = forAll { (int: Integer, right: Rational) =>
+    val left = Rational(int, 1)
+    (int + right) == (left + right)
+  }
+
+  property("subtraction Int of Rational") = forAll { (int: Integer, right: Rational) =>
+    val left = Rational(int, 1)
+    (int - right) == (left - right)
+  }
+
+  property("multiplication Int of Rational") = forAll { (int: Integer, right: Rational) =>
+    val left = Rational(int, 1)
+    (int * right) == (left * right)
+  }
+
+  property("division PositiveInteger of Rational") = forAll { (int: PositiveInteger, right: Rational) =>
+    val left = Rational(int, 1)
+    (int / right) == (left / right)
+  }
+
+  property("division NegativeInteger of Rational") = forAll { (int: NegativeInteger, right: Rational) =>
+    val left = Rational(int, 1)
+    (int / right) == (left / right)
+  }
+
+  property("division Zero of Rational") = forAll { (zero: Zero, right: Rational) =>
+    val left = Rational(zero, 1)
+    val newRight = if right.numer == 0 then Rational(1, right.denom) else right
+    (zero / newRight) == (left / newRight)
+  }
+
 end HomeworkSpecification
